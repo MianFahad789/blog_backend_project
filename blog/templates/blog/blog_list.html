@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'blog/styles.css' %}">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <header class="bg-blue-600 text-white py-4 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center px-6">
+            <h1 class="text-2xl font-bold">Blog Posts</h1>
+            <nav>
+                {% if user.is_authenticated %}
+                    <p class="inline-block mr-4">Welcome, <span class="font-semibold">{{ user.username }}</span>!</p>
+                    {% if user.is_publisher %}
+                        <a href="{% url 'create_blog' %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700">
+                            ➕ Create Blog
+                        </a>
+                    {% endif %}
+                    <form action="{% url 'logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700">
+                            🔒 Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="px-4 py-2 rounded bg-blue-500 hover:bg-blue-700 text-white">Login</a>
+                    <a href="{% url 'register_reader' %}" class="px-4 py-2 rounded bg-green-500 hover:bg-green-700 text-white">Register as Reader</a>
+                    <a href="{% url 'register_publisher' %}" class="px-4 py-2 rounded bg-yellow-500 hover:bg-yellow-700 text-white">Register as Publisher</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- Filters and Sorting -->
+    <div class="max-w-4xl mx-auto mt-6 bg-white p-6 rounded-lg shadow-md">
+        <form method="get" class="flex flex-wrap gap-4">
+            <div>
+                <label for="category" class="block font-semibold">Filter by Category:</label>
+                <select name="category" id="category" class="border rounded p-2">
+                    <option value="">All</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id|stringformat:"s" == request.GET.category %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="sort_by" class="block font-semibold">Sort by:</label>
+                <select name="sort_by" id="sort_by" class="border rounded p-2">
+                    <option value="recent" {% if request.GET.sort_by == "recent" %}selected{% endif %}>Recent</option>
+                    <option value="most_liked" {% if request.GET.sort_by == "most_liked" %}selected{% endif %}>Most Liked</option>
+                    <option value="latest" {% if request.GET.sort_by == "latest" %}selected{% endif %}>Latest</option>
+                    <option value="earliest" {% if request.GET.sort_by == "earliest" %}selected{% endif %}>Earliest</option>
+                </select>
+            </div>
+
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 self-end">
+                Apply Filters
+            </button>
+        </form>
+    </div>
+
+    <!-- Blog List -->
+    <div class="max-w-4xl mx-auto mt-6">
+        <ul class="space-y-6">
+            {% for blog in page_obj %}
+                <li class="bg-white p-6 rounded-lg shadow-md">
+                    <a href="{% url 'blog_detail' blog.pk %}" class="text-2xl font-bold text-blue-600 hover:underline">
+                        {{ blog.title }}
+                    </a>
+                    <p class="text-gray-600 mt-2">Author: <span class="font-semibold">{{ blog.author.username }}</span></p>
+                    <p class="text-gray-600">Category: {{ blog.category.name }}</p>
+                    <p class="text-gray-600">Views: {{ blog.views }}</p>
+                    <p class="text-gray-600">Likes: ❤️ {{ blog.likes.count }}</p>
+                    <p class="text-gray-800 mt-2">{{ blog.content|truncatewords:20 }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="max-w-4xl mx-auto mt-6 text-center">
+        <div class="inline-flex space-x-4">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">« First</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Previous</a>
+            {% endif %}
+
+            <span class="px-4 py-2 bg-blue-500 text-white rounded">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Last »</a>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

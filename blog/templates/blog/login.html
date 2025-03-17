@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'blog/styles.css' %}">
+</head>
+<body class="bg-gray-100 text-gray-900 flex items-center justify-center h-screen">
+
+    <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-4">🔐 Login</h1>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    <label class="block font-semibold text-gray-800">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <p class="text-red-500 text-sm">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                ✅ Login
+            </button>
+        </form>
+
+        <p class="text-gray-600 text-center mt-4">
+            Don't have an account? Please register as per your requirement.
+        </p>
+    </div>
+
+</body>
+</html>

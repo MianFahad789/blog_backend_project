@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publisher Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'blog/styles.css' %}">
+</head>
+<body class="bg-gray-100 text-gray-900 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-3xl bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-4">📖 Publisher Dashboard</h1>
+
+        <div class="flex justify-between mb-4">
+            <a href="{% url 'create_blog' %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                ➕ Create New Blog
+            </a>
+            <a href="{% url 'blog_list' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">
+                🔙 Back to Blogs
+            </a>
+        </div>
+
+        
+            <ul class="space-y-4">
+                {% for blog in blogs %}
+                <li class="bg-white p-6 rounded-lg shadow-md">
+                    <a href="{% url 'blog_detail' blog.id %}" class="text-2xl font-bold text-blue-600 hover:underline">
+                        {{ blog.title }}
+                    </a>
+                    <p class="text-gray-600 mt-2">Author: <span class="font-semibold">{{ blog.author }}</span></p>
+                    <p class="text-gray-600">Category: {{ blog.category }}</p>
+                    <p class="text-gray-600">Views: {{ blog.views }}</p>
+                    <p class="text-gray-600">Likes: ❤️ {{ blog.likes }}</p>
+                    <p class="text-gray-800 mt-2">{{ blog.content|truncatewords:20 }}</p>
+
+                </li>
+                {% endfor %}
+
+            </ul>
+                {% else %}
+            <p class="text-gray-500 text-center">You haven't written any blogs yet.</p>
+    </div>
+
+</body>
+</html>

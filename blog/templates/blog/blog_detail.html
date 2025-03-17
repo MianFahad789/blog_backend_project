@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ blog.title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'blog/styles.css' %}">
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <div class="max-w-3xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-gray-800">{{ blog.title }}</h1>
+        <p class="text-gray-600 mt-2">Author: <span class="font-semibold">{{ blog.author.username }}</span></p>
+        <p class="text-gray-600">Category: {{ blog.category.name }}</p>
+        <p class="text-gray-600">Views: {{ blog.views }}</p>
+        <p class="text-gray-600">Likes: {{ blog.likes.count }}</p>
+        <p class="text-gray-600">Average Rating: ⭐ {{ avg_rating }}/5</p>
+
+        <!-- Like Button -->
+        {% if user.is_authenticated %}
+            <div class="mt-4">
+                {% if user_liked %}
+                    <p class="text-green-600">You liked this blog! ✅</p>
+                {% else %}
+                    <a href="{% url 'like_blog' blog.pk %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        👍 Like
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Blog Content -->
+        <div class="mt-6 border-t pt-4 text-lg text-gray-800 leading-relaxed">
+            {{ blog.content }}
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="max-w-3xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-gray-800">Reviews</h2>
+        <ul class="mt-4 space-y-4">
+            {% for review in blog.reviews.all %}
+                <li class="bg-gray-100 p-4 rounded-lg">
+                    <p class="text-gray-700 font-semibold">{{ review.user.username }}</p>
+                    <p class="text-yellow-500">⭐ {{ review.rating }}/5</p>
+                    <p class="text-gray-600 italic">"{{ review.comment }}"</p>
+                </li>
+            {% empty %}
+                <p class="text-gray-500">No reviews yet.</p>
+            {% endfor %}
+        </ul>
+
+        <!-- Add Review Form -->
+        {% if user.is_authenticated %}
+            <h3 class="text-xl font-semibold mt-6">Add a Review</h3>
+            <form method="post" action="{% url 'add_review' blog.pk %}" class="mt-4">
+                {% csrf_token %}
+                <label for="rating" class="block font-semibold text-gray-800">Rating (1-5):</label>
+                <input type="number" name="rating" min="1" max="5" required 
+                    class="border rounded w-full p-2 mt-2 focus:ring-2 focus:ring-blue-500">
+                
+                <label for="comment" class="block font-semibold text-gray-800 mt-4">Comment:</label>
+                <textarea name="comment" rows="4" class="border rounded w-full p-2 mt-2 focus:ring-2 focus:ring-blue-500"></textarea>
+
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mt-4 hover:bg-green-700">
+                    Submit Review
+                </button>
+                <a href="{% url 'blog_list' %}" class="bg-gray-500 text-white px-4 py-2 rounded mt-4 hover:bg-gray-700">
+                    Back to Blogs
+                </a>
+            </form>
+        {% endif %}
+    </div>
+
+</body>
+</html>
